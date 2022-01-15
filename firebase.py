@@ -32,6 +32,7 @@ def get_all_users():
 def delete_user(uid):
     try:
         auth.delete_user(uid)
+        deleteRecord(uid)
         return 'success'
     except Exception as e:
         print(e)
@@ -43,13 +44,9 @@ def create_account(email, password):
         email= email,
         email_verified=False,
         password=password,
-        display_name='John Doe',
-        photo_url='http://www.example.com/12345678/photo.png',
         disabled=False)
         createRecord(email, user.uid)
-
-
-        return user.uid
+        return "Success"
     except Exception as e:
         return e
 
@@ -68,9 +65,15 @@ def createRecord(email,uid):
     ref = db.reference('/accounts')
     users_ref = ref.child(uid)
     users_ref.set({
-        'alanisawesome':False,
+        'admin':False,
         'email':email,
         'name':'',
         'phone':'',
         'rider':False
     })
+
+def deleteRecord(uid):
+    ref = db.reference('/accounts')
+    users_ref = ref.child(uid)
+    users_ref.set({})
+
