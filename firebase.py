@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, auth,db
+
 import datetime
 
 cred = credentials.Certificate({
@@ -23,13 +24,18 @@ firebase_admin.initialize_app(cred, {
 def get_all_users():
     page = auth.list_users()
     arrayUsers = []
+    data = get_account_data()
     for user in auth.list_users().iterate_all():
         users = {}
         users['email'] = user.email
         users['uid'] = user.uid
+        users['data'] = data[user.uid]
         arrayUsers.append(users)
-
     return arrayUsers
+
+def get_account_data():
+    ref = db.reference('Account/')
+    return ref.get()
 
 def delete_user(uid):
     try:
