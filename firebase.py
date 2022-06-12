@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, auth,db
+import datetime
 
 cred = credentials.Certificate({
   "type": "service_account",
@@ -39,14 +40,14 @@ def delete_user(uid):
         print(e)
         return 'Error'
 
-def create_account(email, password):
+def create_account(email, password, contact, type, first_name, last_name):
     try:
         user = auth.create_user(
         email= email,
         email_verified=False,
         password=password,
         disabled=False)
-        createRecord(email, user.uid)
+        createRecord(email,contact,type, first_name, last_name, user.uid)
         return "Success"
     except Exception as e:
         return e
@@ -62,19 +63,42 @@ def updateUserDetails(email,password,uid):
     except Exception as e:
         return e
 
-def createRecord(email,uid):
-    ref = db.reference('/accounts')
+def createRecord(email,contactNumber,accountType,firstName, lastName,uid):
+    ref = db.reference('/Account')
     users_ref = ref.child(uid)
     users_ref.set({
-        'admin':False,
+        'Uid':uid,
+        'contactNumber':contactNumber,
+        'type':accountType,
         'email':email,
-        'name':'',
-        'phone':'',
-        'rider':False
+        'firstName':firstName,
+        'lastName':lastName,
+        'dateCreated': int((datetime.datetime.now() - datetime.datetime(1970,1,1)).total_seconds())
+    })
+    if accountType == 'university':
+        createUniRecord(uid)
+
+def createUniRecord(uid):
+    ref = db.reference('/university')
+    users_ref = ref.child(uid)
+    users_ref.set({
+        'Address':{
+            "Barangay":" ",
+            "City":"",
+            "Country":"",
+            "Lot":"",
+            "Province":"",
+            "ZipCode":""
+        },
+        "ProgramsOffered":{
+            'random1':{
+                "Field":''
+            }
+        },
     })
 
 def deleteRecord(uid):
-    ref = db.reference('/accounts')
+    ref = db.reference('/Account')
     users_ref = ref.child(uid)
     users_ref.set({})
 
